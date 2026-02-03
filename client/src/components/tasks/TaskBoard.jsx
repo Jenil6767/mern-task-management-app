@@ -23,6 +23,7 @@ import TaskColumn from './TaskColumn';
 import TaskCard from './TaskCard';
 import TaskFormModal from './TaskFormModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
+import TaskFilters from './TaskFilters';
 import Button from '../common/Button';
 import Spinner from '../common/Spinner';
 import ErrorMessage from '../common/ErrorMessage';
@@ -68,7 +69,7 @@ const TaskBoard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [users, setUsers] = useState([]);
-  const [filters] = useState({
+  const [filters, setFilters] = useState({
     search: '',
     assignee: '',
     priority: '',
@@ -90,7 +91,7 @@ const TaskBoard = () => {
 
   useEffect(() => {
     fetchTasks();
-  }, [projectId, filters, page]);
+  }, [projectId, page, filters.search, filters.assignee, filters.priority]);
 
   useEffect(() => {
     fetchUsers();
@@ -267,6 +268,11 @@ const TaskBoard = () => {
     fetchTasks();
   };
 
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+    setPage(1);
+  };
+
   const handleLoadMore = () => {
     setPage((prev) => prev + 1);
   };
@@ -299,6 +305,12 @@ const TaskBoard = () => {
       </div>
 
       {error && <ErrorMessage message={error} className="mb-4" />}
+
+      <TaskFilters
+        assignees={users}
+        onFilterChange={handleFilterChange}
+        currentFilters={filters}
+      />
 
       <DndContext
         sensors={sensors}
