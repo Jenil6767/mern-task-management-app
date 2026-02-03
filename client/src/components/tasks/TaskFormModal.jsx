@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import Modal from '../common/Modal';
 import Input from '../common/Input';
@@ -150,7 +150,7 @@ const TaskFormModal = ({ isOpen, onClose, task, projectId, users = [], onSuccess
           >
             <option value="">Unassigned</option>
             {users.map((user) => (
-              <option key={user.id} value={user.name}>
+              <option key={user.id} value={user.id}>
                 {user.name}
               </option>
             ))}

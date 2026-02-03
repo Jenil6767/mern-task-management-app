@@ -5,9 +5,9 @@ export const TASK_STATUS = {
 };
 
 export const TASK_PRIORITY = {
-  HIGH: 'High',
-  MEDIUM: 'Medium',
-  LOW: 'Low',
+  HIGH: 'HIGH',
+  MEDIUM: 'MEDIUM',
+  LOW: 'LOW',
 };
 
 export const PRIORITY_COLORS = {
@@ -23,4 +23,3 @@ export const STATUS_COLORS = {
 };
 
 export const TASKS_PER_PAGE = 20;
-

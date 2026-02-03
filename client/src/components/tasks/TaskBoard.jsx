@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   DndContext,
@@ -193,7 +193,10 @@ const TaskBoard = () => {
 
       try {
         // API call in background
-        await api.patch(`/tasks/${taskId}`, { status: newStatus });
+        await api.patch(`/tasks/${taskId}/status`, {
+          status: newStatus,
+          version: taskToMove.version
+        });
         setPendingTasks((prev) => {
           const s = new Set(prev);
           s.delete(taskId);

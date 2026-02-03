@@ -1,14 +1,14 @@
+import React from 'react';
 import { PRIORITY_COLORS } from '../../utils/constants';
 import { formatDate, isOverdue } from '../../utils/dateFormat';
 
-const TaskCard = ({ task, onEdit = () => {}, onDelete = () => {}, isPending = false }) => {
+const TaskCard = ({ task, onEdit = () => { }, onDelete = () => { }, isPending = false }) => {
   const overdue = isOverdue(task.dueDate);
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-sm p-4 mb-3 border-l-4 ${
-        overdue ? 'border-red-500' : 'border-blue-500'
-      } ${isPending ? 'opacity-50' : ''} hover:shadow-md transition-shadow relative`}
+      className={`bg-white rounded-lg shadow-sm p-4 mb-3 border-l-4 ${overdue ? 'border-red-500' : 'border-blue-500'
+        } ${isPending ? 'opacity-50' : ''} hover:shadow-md transition-shadow relative`}
     >
       {isPending && (
         <div className="absolute top-2 right-2">
@@ -49,9 +49,9 @@ const TaskCard = ({ task, onEdit = () => {}, onDelete = () => {}, isPending = fa
 
       <div className="flex items-center justify-between mt-3">
         <div className="flex items-center gap-2">
-          {task.assignedTo && (
+          {task.assigneeName && (
             <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
-              {task.assignedTo}
+              {task.assigneeName}
             </span>
           )}
           {task.priority && (

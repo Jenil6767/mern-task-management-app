@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
   useEffect(() => {

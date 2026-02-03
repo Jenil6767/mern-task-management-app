@@ -1,3 +1,4 @@
+import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { TASK_STATUS } from '../../utils/constants';
 

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 import { validateEmail, validatePassword } from '../../utils/validation';
@@ -113,6 +113,13 @@ const LoginForm = () => {
           >
             Sign In
           </Button>
+
+          <p className="text-center text-sm text-gray-600 mt-4">
+            Don't have an account?{' '}
+            <Link to="/register" className="text-blue-600 hover:underline font-medium">
+              Register
+            </Link>
+          </p>
         </form>
       </div>
     </div>
