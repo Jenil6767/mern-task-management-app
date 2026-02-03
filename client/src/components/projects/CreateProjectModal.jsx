@@ -24,12 +24,12 @@ const CreateProjectModal = ({ isOpen, onClose, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const newErrors = {};
     if (!validateRequired(formData.name)) {
       newErrors.name = 'Project name is required';
     }
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -58,38 +58,45 @@ const CreateProjectModal = ({ isOpen, onClose, onSuccess }) => {
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Create New Project" size="md">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="Project Name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="Enter project name"
-          error={errors.name}
-          required
-        />
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <div className="flex flex-col gap-1">
+          <label className="block text-sm font-semibold text-gray-700 ml-1">Project Name</label>
+          <Input
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="e.g. Q4 Marketing Campaign"
+            error={errors.name}
+            className="input-field"
+            required
+          />
+        </div>
 
-        <Input
-          label="Description"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          placeholder="Enter project description (optional)"
-        />
+        <div className="space-y-1">
+          <label className="block text-sm font-semibold text-gray-700 ml-1">Description</label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="What is this project about?"
+            rows="3"
+            className="input-field min-h-[100px] resize-none"
+          />
+        </div>
 
-        <div className="flex gap-3 justify-end pt-4">
-          <Button
+        <div className="flex gap-3 justify-end pt-6 border-t border-gray-50">
+          <button
             type="button"
-            variant="secondary"
             onClick={handleClose}
             disabled={loading}
+            className="px-6 py-2.5 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors"
           >
             Cancel
-          </Button>
+          </button>
           <Button
             type="submit"
-            variant="primary"
             loading={loading}
+            className="btn-primary px-8 shadow-blue-500/20"
           >
             Create Project
           </Button>

@@ -12,7 +12,7 @@ const TaskFormModal = ({ isOpen, onClose, task, projectId, users = [], onSuccess
     title: '',
     description: '',
     assignedTo: '',
-    priority: TASK_PRIORITY.MEDIUM,
+    priority: '',
     dueDate: '',
   });
   const [errors, setErrors] = useState({});
@@ -32,7 +32,7 @@ const TaskFormModal = ({ isOpen, onClose, task, projectId, users = [], onSuccess
         title: '',
         description: '',
         assignedTo: '',
-        priority: TASK_PRIORITY.MEDIUM,
+        priority: '',
         dueDate: '',
       });
     }
@@ -54,7 +54,13 @@ const TaskFormModal = ({ isOpen, onClose, task, projectId, users = [], onSuccess
       newErrors.title = 'Title is required';
     }
 
-    if (formData.dueDate && !validateFutureDate(formData.dueDate)) {
+    if (!validateRequired(formData.priority)) {
+      newErrors.priority = 'Priority is required';
+    }
+
+    if (!validateRequired(formData.dueDate)) {
+      newErrors.dueDate = 'Due date is required';
+    } else if (!validateFutureDate(formData.dueDate)) {
       newErrors.dueDate = 'Due date must be today or in the future';
     }
 
@@ -77,7 +83,10 @@ const TaskFormModal = ({ isOpen, onClose, task, projectId, users = [], onSuccess
       };
 
       if (task) {
-        await api.put(`/tasks/${task.id}`, payload);
+        await api.put(`/tasks/${task.id}`, {
+          ...payload,
+          version: task.version
+        });
         toast.success('Task updated successfully');
       } else {
         await api.post('/tasks', payload);
@@ -113,87 +122,103 @@ const TaskFormModal = ({ isOpen, onClose, task, projectId, users = [], onSuccess
       title={task ? 'Edit Task' : 'Create New Task'}
       size="md"
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="Title"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          placeholder="Enter task title"
-          error={errors.title}
-          required
-        />
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <div className="flex flex-col gap-1">
+          <label className="block text-sm font-semibold text-gray-700 ml-1">Title</label>
+          <Input
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            placeholder="What needs to be done?"
+            error={errors.title}
+            className="input-field"
+            required
+          />
+        </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="space-y-1">
+          <label className="block text-sm font-semibold text-gray-700 ml-1">
             Description
           </label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
-            placeholder="Enter task description (optional)"
+            placeholder="Add some details..."
             rows="3"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input-field min-h-[100px] resize-none"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Assign To
-          </label>
-          <select
-            name="assignedTo"
-            value={formData.assignedTo}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Unassigned</option>
-            {users.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name}
-              </option>
-            ))}
-          </select>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <label className="block text-sm font-semibold text-gray-700 ml-1">
+              Assign To
+            </label>
+            <select
+              name="assignedTo"
+              value={formData.assignedTo}
+              onChange={handleChange}
+              className="input-field"
+            >
+              <option value="">Unassigned</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-sm font-semibold text-gray-700 ml-1">
+              Priority
+            </label>
+            <select
+              name="priority"
+              value={formData.priority}
+              onChange={handleChange}
+              className={`input-field ${errors.priority ? 'border-red-500' : ''}`}
+            >
+              <option value="">Select Priority</option>
+              {Object.values(TASK_PRIORITY).map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+            {errors.priority && (
+              <p className="text-red-500 text-xs mt-1 font-bold">{errors.priority}</p>
+            )}
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Priority
-          </label>
-          <select
-            name="priority"
-            value={formData.priority}
+        <div className="flex flex-col gap-1">
+          <label className="block text-sm font-semibold text-gray-700 ml-1">Due Date</label>
+          <Input
+            type="date"
+            name="dueDate"
+            value={formData.dueDate}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {Object.values(TASK_PRIORITY).map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
+            error={errors.dueDate}
+            className="input-field"
+          />
         </div>
 
-        <Input
-          label="Due Date"
-          type="date"
-          name="dueDate"
-          value={formData.dueDate}
-          onChange={handleChange}
-          error={errors.dueDate}
-        />
-
-        <div className="flex gap-3 justify-end pt-4">
-          <Button
+        <div className="flex gap-3 justify-end pt-6 border-t border-gray-50">
+          <button
             type="button"
-            variant="secondary"
             onClick={handleClose}
             disabled={loading}
+            className="px-6 py-2.5 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors"
           >
             Cancel
-          </Button>
-          <Button type="submit" variant="primary" loading={loading}>
+          </button>
+          <Button
+            type="submit"
+            loading={loading}
+            className="btn-primary px-8 shadow-blue-500/20"
+          >
             {task ? 'Update Task' : 'Create Task'}
           </Button>
         </div>

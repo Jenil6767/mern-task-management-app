@@ -152,7 +152,7 @@ export const updateTask = async (user, taskId, payload) => {
 
     const current = await ensureTaskForOrg(taskId, user.organizationId);
 
-    const fields = [];
+    const fields = ['t.version = t.version + 1'];
     const params = [];
 
     ['title', 'description', 'status', 'priority', 'assignedTo', 'dueDate'].forEach((key) => {
@@ -162,19 +162,23 @@ export const updateTask = async (user, taskId, payload) => {
       }
     });
 
-    if (!fields.length) {
-      return current;
-    }
+    params.push(taskId, payload.version, user.organizationId);
 
-    params.push(taskId, user.organizationId);
-
-    await connection.query(
+    const [result] = await connection.query(
       `UPDATE tasks t
        JOIN projects p ON t.projectId = p.id
        SET ${fields.join(', ')}
-       WHERE t.id = ? AND p.organizationId = ? AND t.deletedAt IS NULL AND p.deletedAt IS NULL`,
+       WHERE t.id = ? 
+         AND t.version = ?
+         AND p.organizationId = ? 
+         AND t.deletedAt IS NULL 
+         AND p.deletedAt IS NULL`,
       params,
     );
+
+    if (result.affectedRows === 0) {
+      throw new ApiError(409, 'Task was updated by another user. Please refresh and retry.');
+    }
 
     const updated = await ensureTaskForOrg(taskId, user.organizationId);
 

@@ -22,10 +22,17 @@ export const createProject = async ({ name, description, organizationId }) => {
 export const listProjects = async (organizationId) => {
   const pool = getPool();
   const [rows] = await pool.query(
-    `SELECT id, name, description, organizationId, createdAt, updatedAt
-     FROM projects
-     WHERE organizationId = ? AND deletedAt IS NULL
-     ORDER BY createdAt DESC`,
+    `SELECT p.id, p.name, p.description, p.organizationId, p.createdAt, p.updatedAt,
+            (SELECT COUNT(*) FROM tasks t WHERE t.projectId = p.id AND t.deletedAt IS NULL) as taskCount,
+            (SELECT COUNT(*) FROM tasks t 
+             WHERE t.projectId = p.id 
+               AND t.deletedAt IS NULL 
+               AND t.status != 'DONE' 
+               AND t.dueDate IS NOT NULL 
+               AND t.dueDate < NOW()) as overdueCount
+     FROM projects p
+     WHERE p.organizationId = ? AND p.deletedAt IS NULL
+     ORDER BY p.createdAt DESC`,
     [organizationId],
   );
   return rows;

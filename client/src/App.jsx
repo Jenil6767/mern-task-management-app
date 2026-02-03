@@ -8,15 +8,16 @@ import RegisterForm from './components/auth/RegisterForm';
 import ProjectList from './components/projects/ProjectList';
 import TaskBoard from './components/tasks/TaskBoard';
 import Analytics from './components/Analytics';
+import LandingPage from './components/layout/LandingPage';
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
-          <Route path="/" element={<Navigate to="/projects" replace />} />
           <Route
             path="/projects"
             element={

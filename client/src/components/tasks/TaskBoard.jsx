@@ -83,7 +83,11 @@ const TaskBoard = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -111,11 +115,13 @@ const TaskBoard = () => {
     try {
       setLoading(true);
       setError('');
-      const params = {
-        page,
-        limit: TASKS_PER_PAGE,
-        ...filters,
-      };
+      const params = Object.fromEntries(
+        Object.entries({
+          page,
+          limit: TASKS_PER_PAGE,
+          ...filters,
+        }).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
+      );
 
       const response = await api.get(`/projects/${projectId}/tasks`, { params });
       const fetchedTasks = response.data.tasks || response.data || [];
@@ -193,10 +199,20 @@ const TaskBoard = () => {
 
       try {
         // API call in background
-        await api.patch(`/tasks/${taskId}/status`, {
+        const response = await api.patch(`/tasks/${taskId}/status`, {
           status: newStatus,
           version: taskToMove.version
         });
+
+        // Update the task version in state if successful
+        const updatedTask = response.data;
+        setTasks((prev) => ({
+          ...prev,
+          [newStatus]: prev[newStatus].map((t) =>
+            t.id === taskId ? { ...t, version: updatedTask.version } : t
+          ),
+        }));
+
         setPendingTasks((prev) => {
           const s = new Set(prev);
           s.delete(taskId);
@@ -299,11 +315,16 @@ const TaskBoard = () => {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Task Board</h1>
-        <Button variant="primary" onClick={handleCreateTask}>
-          Create Task
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+            Project <span className="gradient-text">Board</span>
+          </h1>
+          <p className="text-gray-500 font-medium mt-1">Drag and drop tasks to manage your workflow.</p>
+        </div>
+        <Button onClick={handleCreateTask} className="btn-primary shadow-blue-500/20">
+          + New Task
         </Button>
       </div>
 

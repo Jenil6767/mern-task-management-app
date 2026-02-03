@@ -49,14 +49,14 @@ export const statusUpdateValidator = [
 
 export const taskListQueryValidator = [
   param('projectId').isInt().toInt(),
-  query('page').optional().isInt({ min: 1 }).toInt(),
-  query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
-  query('status').optional().isIn(Object.values(TASK_STATUS)),
-  query('assignedTo').optional().isInt().toInt(),
-  query('priority').optional().isIn(Object.values(TASK_PRIORITY)),
-  query('search').optional().isString(),
-  query('sortBy').optional().isIn(['createdAt', 'dueDate']),
-  query('order').optional().isIn(['asc', 'desc']),
+  query('page').optional({ checkFalsy: true }).isInt({ min: 1 }).toInt(),
+  query('limit').optional({ checkFalsy: true }).isInt({ min: 1, max: 100 }).toInt(),
+  query('status').optional({ checkFalsy: true }).isIn(Object.values(TASK_STATUS)),
+  query('assignedTo').optional({ checkFalsy: true }).isInt().toInt(),
+  query('priority').optional({ checkFalsy: true }).isIn(Object.values(TASK_PRIORITY)),
+  query('search').optional({ checkFalsy: true }).isString(),
+  query('sortBy').optional({ checkFalsy: true }).isIn(['createdAt', 'dueDate']),
+  query('order').optional({ checkFalsy: true }).isIn(['asc', 'desc']),
 ];
 
 

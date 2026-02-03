@@ -7,8 +7,8 @@ const TaskCard = ({ task, onEdit = () => { }, onDelete = () => { }, isPending = 
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-sm p-4 mb-3 border-l-4 ${overdue ? 'border-red-500' : 'border-blue-500'
-        } ${isPending ? 'opacity-50' : ''} hover:shadow-md transition-shadow relative`}
+      className={`bg-white/80 backdrop-blur-sm rounded-xl p-4 mb-3 border-t-2 ${overdue ? 'border-red-500' : 'border-blue-500'
+        } ${isPending ? 'opacity-50' : ''} hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative shadow-sm border-x border-b border-gray-100 group`}
     >
       {isPending && (
         <div className="absolute top-2 right-2">
@@ -19,12 +19,15 @@ const TaskCard = ({ task, onEdit = () => { }, onDelete = () => { }, isPending = 
         </div>
       )}
 
-      <div className="flex items-start justify-between mb-2">
-        <h4 className="font-semibold text-gray-800 text-sm flex-1">{task.title}</h4>
-        <div className="flex gap-1 ml-2">
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <h4 className="font-bold text-gray-900 text-[15px] flex-1 leading-snug group-hover:text-blue-600 transition-colors">{task.title}</h4>
+        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
-            onClick={() => onEdit(task)}
-            className="text-gray-400 hover:text-blue-600 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(task);
+            }}
+            className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
             title="Edit task"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,8 +35,11 @@ const TaskCard = ({ task, onEdit = () => { }, onDelete = () => { }, isPending = 
             </svg>
           </button>
           <button
-            onClick={() => onDelete(task)}
-            className="text-gray-400 hover:text-red-600 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(task);
+            }}
+            className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
             title="Delete task"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,26 +50,45 @@ const TaskCard = ({ task, onEdit = () => { }, onDelete = () => { }, isPending = 
       </div>
 
       {task.description && (
-        <p className="text-xs text-gray-600 mb-2 line-clamp-2">{task.description}</p>
+        <p className="text-sm text-gray-500 mb-4 line-clamp-2 font-medium leading-relaxed">{task.description}</p>
       )}
 
-      <div className="flex items-center justify-between mt-3">
-        <div className="flex items-center gap-2">
-          {task.assigneeName && (
-            <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
-              {task.assigneeName}
-            </span>
-          )}
-          {task.priority && (
-            <span className={`text-xs px-2 py-1 rounded ${PRIORITY_COLORS[task.priority] || 'bg-gray-100'}`}>
-              {task.priority}
-            </span>
-          )}
+      <div className="flex flex-col gap-3 mt-auto">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {task.assigneeName && (
+              <div className="flex items-center gap-1 bg-blue-50 p-1 pr-2 rounded-full border border-blue-100">
+                <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold uppercase">
+                  {task.assigneeName.charAt(0)}
+                </div>
+                <span className="text-[10px] font-bold text-blue-700">
+                  {task.assigneeName}
+                </span>
+              </div>
+            )}
+            {task.priority && (
+              <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${task.priority === 'High' ? 'bg-red-50 text-red-600 border-red-100' :
+                task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600 border-yellow-100' :
+                  'bg-emerald-50 text-emerald-600 border-emerald-100'
+                }`}>
+                {task.priority}
+              </span>
+            )}
+          </div>
         </div>
+
         {task.dueDate && (
-          <span className={`text-xs ${overdue ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
-            {formatDate(task.dueDate)}
-          </span>
+          <div className="flex items-center justify-between py-2 border-t border-gray-50">
+            <div className="flex items-center gap-1.5 text-gray-400">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              <span className={`text-[11px] font-bold ${overdue ? 'text-red-500' : 'text-gray-500'}`}>
+                {formatDate(task.dueDate)}
+              </span>
+            </div>
+            {overdue && (
+              <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">Overdue</span>
+            )}
+          </div>
         )}
       </div>
     </div>

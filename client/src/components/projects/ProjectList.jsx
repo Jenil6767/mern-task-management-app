@@ -48,15 +48,21 @@ const ProjectList = () => {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Projects</h1>
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+            Organization <span className="gradient-text">Projects</span>
+          </h1>
+          <p className="text-gray-500 font-medium mt-1">Manage all your organizational initiatives here.</p>
+        </div>
+
         {user?.role === 'Admin' && (
           <Button
-            variant="primary"
             onClick={() => setShowCreateModal(true)}
+            className="btn-primary shadow-blue-500/20"
           >
-            Create Project
+            + Create New Project
           </Button>
         )}
       </div>

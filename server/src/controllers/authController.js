@@ -2,8 +2,8 @@ import { register, login, getMe } from '../services/authService.js';
 
 export const registerController = async (req, res, next) => {
   try {
-    const { name, email, password, inviteCode, organizationName } = req.body;
-    const result = await register({ name, email, password, inviteCode, organizationName });
+    const { name, email, password, inviteCode, organizationName, role } = req.body;
+    const result = await register({ name, email, password, inviteCode, organizationName, role });
     return res.status(201).json(result);
   } catch (err) {
     return next(err);

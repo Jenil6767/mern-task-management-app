@@ -15,7 +15,7 @@ const generateInviteCode = () => crypto.randomBytes(8).toString('hex');
  * If inviteCode is provided, user joins an existing organization.
  * Otherwise a new organization is created.
  */
-export const register = async ({ name, email, password, inviteCode, organizationName }) => {
+export const register = async ({ name, email, password, inviteCode, organizationName, role }) => {
   const pool = getPool();
   const connection = await pool.getConnection();
 
@@ -28,7 +28,8 @@ export const register = async ({ name, email, password, inviteCode, organization
     }
 
     let organizationId;
-    let role = ROLES.MEMBER;
+    const requestedRole = (role && role.toUpperCase() === 'ADMIN' ? ROLES.ADMIN : ROLES.MEMBER);
+    let finalRole = requestedRole;
 
     if (inviteCode) {
       const [orgRows] = await connection.query(
@@ -39,16 +40,30 @@ export const register = async ({ name, email, password, inviteCode, organization
         throw new ApiError(400, 'Invalid invite code');
       }
       organizationId = orgRows[0].id;
-      role = ROLES.MEMBER;
+      finalRole = ROLES.MEMBER;
     } else {
-      const orgName = organizationName || `${name}'s Organization`;
-      const newInvite = generateInviteCode();
-      const [orgResult] = await connection.query(
-        'INSERT INTO organizations (name, inviteCode) VALUES (?, ?)',
-        [orgName, newInvite],
+      // Try to find existing organization by name if member
+      const [existingOrg] = await connection.query(
+        'SELECT id FROM organizations WHERE name = ?',
+        [organizationName],
       );
-      organizationId = orgResult.insertId;
-      role = ROLES.ADMIN; // first user in org is Admin
+
+      if (existingOrg.length) {
+        organizationId = existingOrg[0].id;
+        // If joining existing org, they are a member by default unless specifically asked to be admin
+        // For this practical, let's respect the requestedRole
+        finalRole = requestedRole;
+      } else {
+        // Create new organization
+        const newInvite = generateInviteCode();
+        const [orgResult] = await connection.query(
+          'INSERT INTO organizations (name, inviteCode) VALUES (?, ?)',
+          [organizationName, newInvite],
+        );
+        organizationId = orgResult.insertId;
+        // If creating new org, they MUST be admin
+        finalRole = ROLES.ADMIN;
+      }
     }
 
     const hashed = await bcrypt.hash(password, SALT_ROUNDS);
@@ -56,7 +71,7 @@ export const register = async ({ name, email, password, inviteCode, organization
     const [userResult] = await connection.query(
       `INSERT INTO users (name, email, password, role, organizationId)
        VALUES (?, ?, ?, ?, ?)`,
-      [name, email, hashed, role, organizationId],
+      [name, email, hashed, finalRole, organizationId],
     );
 
     const userId = userResult.insertId;
