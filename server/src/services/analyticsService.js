@@ -52,19 +52,20 @@ export const getAnalytics = async ({ organizationId, projectId }) => {
     `
     SELECT
       COUNT(*) AS totalTasks,
-      COUNT(CASE WHEN status = 'DONE' THEN 1 END) AS completedTasks,
-      COUNT(CASE WHEN status != 'DONE' OR status IS NULL THEN 1 END) AS pendingTasks,
+      COUNT(CASE WHEN t.status = 'DONE' THEN 1 END) AS completedTasks,
+      COUNT(CASE WHEN t.status != 'DONE' OR t.status IS NULL THEN 1 END) AS pendingTasks,
       COUNT(
         CASE
-          WHEN status != 'DONE'
-           AND dueDate IS NOT NULL
-           AND dueDate < NOW()
+          WHEN t.status != 'DONE'
+           AND t.dueDate IS NOT NULL
+           AND t.dueDate < NOW()
           THEN 1 END
       ) AS overdueTasks,
       AVG(
         CASE
-          WHEN completedAt IS NOT NULL
-          THEN TIMESTAMPDIFF(HOUR, createdAt, completedAt)
+          WHEN t.completedAt IS NOT NULL
+           AND t.createdAt IS NOT NULL
+          THEN TIMESTAMPDIFF(HOUR, t.createdAt, t.completedAt)
           ELSE NULL
         END
       ) AS avgCompletionTimeHours

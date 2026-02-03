@@ -10,7 +10,14 @@ import { toast } from 'react-hot-toast';
 
 const RegisterForm = () => {
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, isAuthenticated } = useAuth();
+
+    React.useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/projects');
+        }
+    }, [isAuthenticated, navigate]);
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -75,9 +82,8 @@ const RegisterForm = () => {
             const response = await api.post('/auth/register', registerData);
             const { user, token } = response.data;
 
-            login(user, token);
-            toast.success('Registration successful!');
-            navigate('/projects');
+            toast.success('Registration successful! Please login.');
+            navigate('/login');
         } catch (error) {
             const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.';
             setApiError(errorMessage);

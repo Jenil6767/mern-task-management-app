@@ -77,8 +77,8 @@ const NavButton = ({ children, onClick, active }) => (
   <button
     onClick={onClick}
     className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${active
-      ? 'bg-blue-50 text-blue-600'
-      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+      : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-800'
       }`}
   >
     {children}

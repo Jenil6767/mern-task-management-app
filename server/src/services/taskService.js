@@ -96,9 +96,10 @@ export const listTasks = async (organizationId, projectId, query) => {
     params.push(query.status);
   }
 
-  if (query.assignedTo) {
+  const assignedTo = query.assignedTo || query.assignee;
+  if (assignedTo) {
     whereParts.push('t.assignedTo = ?');
-    params.push(query.assignedTo);
+    params.push(assignedTo);
   }
 
   if (query.priority) {

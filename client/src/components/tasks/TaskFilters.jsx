@@ -3,32 +3,32 @@ import Input from '../common/Input';
 import Button from '../common/Button';
 import { TASK_PRIORITY } from '../../utils/constants';
 
-const TaskFilters = ({ 
-  assignees = [], 
-  onFilterChange, 
-  currentFilters 
+const TaskFilters = ({
+  assignees = [],
+  onFilterChange,
+  currentFilters
 }) => {
   const [search, setSearch] = useState(currentFilters.search || '');
-  const [assignee, setAssignee] = useState(currentFilters.assignee || '');
+  const [assignedTo, setAssignedTo] = useState(currentFilters.assignedTo || '');
   const [priority, setPriority] = useState(currentFilters.priority || '');
 
   // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
-      onFilterChange({ search, assignee, priority });
+      onFilterChange({ search, assignedTo, priority });
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [search, assignee, priority]);
+  }, [search, assignedTo, priority]);
 
   const handleClear = () => {
     setSearch('');
-    setAssignee('');
+    setAssignedTo('');
     setPriority('');
-    onFilterChange({ search: '', assignee: '', priority: '' });
+    onFilterChange({ search: '', assignedTo: '', priority: '' });
   };
 
-  const hasActiveFilters = search || assignee || priority;
+  const hasActiveFilters = search || assignedTo || priority;
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 mb-6">
@@ -44,14 +44,14 @@ const TaskFilters = ({
         </div>
 
         <select
-          value={assignee}
-          onChange={(e) => setAssignee(e.target.value)}
+          value={assignedTo}
+          onChange={(e) => setAssignedTo(e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">All Assignees</option>
           {assignees.map((user) => (
-            <option key={user.id || user._id || user.email || user.name} value={user.name || user.email}>
-              {user.name || user.email}
+            <option key={user.id} value={user.id}>
+              {user.name}
             </option>
           ))}
         </select>

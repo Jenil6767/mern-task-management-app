@@ -26,9 +26,9 @@ export const assignProjectUsersValidator = [
 export const createTaskValidator = [
   body('title').notEmpty().withMessage('Title is required'),
   body('projectId').isInt().withMessage('projectId is required'),
-  body('assignedTo').optional().isInt(),
+  body('assignedTo').optional({ checkFalsy: true }).isInt(),
   body('priority').optional().isIn(Object.values(TASK_PRIORITY)),
-  body('dueDate').optional().isISO8601().toDate(),
+  body('dueDate').optional({ checkFalsy: true }).isISO8601().toDate(),
 ];
 
 export const updateTaskValidator = [
@@ -37,8 +37,8 @@ export const updateTaskValidator = [
   body('description').optional().isString(),
   body('status').optional().isIn(Object.values(TASK_STATUS)),
   body('priority').optional().isIn(Object.values(TASK_PRIORITY)),
-  body('assignedTo').optional().isInt(),
-  body('dueDate').optional().isISO8601().toDate(),
+  body('assignedTo').optional({ checkFalsy: true }).isInt(),
+  body('dueDate').optional({ checkFalsy: true }).isISO8601().toDate(),
 ];
 
 export const statusUpdateValidator = [

@@ -71,7 +71,7 @@ const TaskBoard = () => {
   const [users, setUsers] = useState([]);
   const [filters, setFilters] = useState({
     search: '',
-    assignee: '',
+    assignedTo: '',
     priority: '',
   });
   const [page, setPage] = useState(1);
@@ -95,7 +95,7 @@ const TaskBoard = () => {
 
   useEffect(() => {
     fetchTasks();
-  }, [projectId, page, filters.search, filters.assignee, filters.priority]);
+  }, [projectId, page, filters.search, filters.assignedTo, filters.priority]);
 
   useEffect(() => {
     fetchUsers();
