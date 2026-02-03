@@ -4,6 +4,34 @@ A high-performance, secure, and scalable MERN stack application designed for pro
 
 ---
 
+## 🚀 Getting Started
+
+Follow these steps to get the project running locally.
+
+### 1. Prerequisites
+*   **Node.js** (v16+)
+*   **MySQL** (v8+)
+
+### 2. Database Setup
+1.  Open your MySQL terminal or GUI (like MySQL Workbench).
+2.  Create a new database: `CREATE DATABASE task_management;`
+3.  Execute the migration script found at: `server/src/migrations/init.sql`.
+
+### 3. Backend Setup
+1.  Navigate to the server directory: `cd server`
+2.  Install dependencies: `npm install`
+3.  Create a `.env` file based on `.env.example`: `cp .env.example .env`
+4.  Configure your database credentials in `.env`.
+5.  Start the server: `npm run dev` (Runs on `http://localhost:5000`)
+
+### 4. Frontend Setup
+1.  Navigate to the client directory: `cd client`
+2.  Install dependencies: `npm install`
+3.  Create a `.env` file: `echo VITE_API_URL=http://localhost:5000/api > .env`
+4.  Start the client: `npm run dev` (Runs on `http://localhost:3000`)
+
+---
+
 ##  Architecture Overview
 
 The system follows a **Layered Monolithic Architecture** with a clear separation of concerns, built for reliability and ease of deployment.
