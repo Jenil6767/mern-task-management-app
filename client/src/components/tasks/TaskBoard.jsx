@@ -21,12 +21,15 @@ import api from '../../services/api';
 import { TASK_STATUS, TASKS_PER_PAGE } from '../../utils/constants';
 import TaskColumn from './TaskColumn';
 import TaskCard from './TaskCard';
+import TaskFormModal from './TaskFormModal';
+import DeleteConfirmModal from './DeleteConfirmModal';
+import Button from '../common/Button';
 import Spinner from '../common/Spinner';
 import ErrorMessage from '../common/ErrorMessage';
 import { toast } from 'react-hot-toast';
 
 // Draggable Task Card Component
-const DraggableTaskCard = ({ task, isPending }) => {
+const DraggableTaskCard = ({ task, isPending, onEdit, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
     data: {
@@ -46,8 +49,8 @@ const DraggableTaskCard = ({ task, isPending }) => {
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <TaskCard
         task={task}
-        onEdit={() => {}}
-        onDelete={() => {}}
+        onEdit={onEdit}
+        onDelete={onDelete}
         isPending={isPending}
       />
     </div>
@@ -64,6 +67,7 @@ const TaskBoard = () => {
   const [pendingTasks, setPendingTasks] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [users, setUsers] = useState([]);
   const [filters] = useState({
     search: '',
     assignee: '',
@@ -72,6 +76,10 @@ const TaskBoard = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [activeId, setActiveId] = useState(null);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -83,6 +91,20 @@ const TaskBoard = () => {
   useEffect(() => {
     fetchTasks();
   }, [projectId, filters, page]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await api.get('/users');
+      setUsers(response.data || []);
+    } catch (e) {
+      // Not fatal for board; assignee dropdown will be empty
+      setUsers([]);
+    }
+  };
 
   const fetchTasks = async () => {
     try {
@@ -204,6 +226,47 @@ const TaskBoard = () => {
     }
   };
 
+  const handleCreateTask = () => {
+    setSelectedTask(null);
+    setShowTaskModal(true);
+  };
+
+  const handleEditTask = (task) => {
+    setSelectedTask(task);
+    setShowTaskModal(true);
+  };
+
+  const handleDeleteTask = (task) => {
+    setSelectedTask(task);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedTask?.id) return;
+    setDeleteLoading(true);
+    try {
+      await api.delete(`/tasks/${selectedTask.id}`);
+      setTasks({
+        [TASK_STATUS.TODO]: tasks[TASK_STATUS.TODO].filter((t) => t.id !== selectedTask.id),
+        [TASK_STATUS.IN_PROGRESS]: tasks[TASK_STATUS.IN_PROGRESS].filter((t) => t.id !== selectedTask.id),
+        [TASK_STATUS.DONE]: tasks[TASK_STATUS.DONE].filter((t) => t.id !== selectedTask.id),
+      });
+      toast.success('Task deleted successfully');
+      setShowDeleteModal(false);
+      setSelectedTask(null);
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to delete task';
+      toast.error(errorMessage);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleTaskSaved = () => {
+    setPage(1);
+    fetchTasks();
+  };
+
   const handleLoadMore = () => {
     setPage((prev) => prev + 1);
   };
@@ -230,6 +293,9 @@ const TaskBoard = () => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Task Board</h1>
+        <Button variant="primary" onClick={handleCreateTask}>
+          Create Task
+        </Button>
       </div>
 
       {error && <ErrorMessage message={error} className="mb-4" />}
@@ -256,6 +322,8 @@ const TaskBoard = () => {
                   <DraggableTaskCard
                     key={task.id}
                     task={task}
+                    onEdit={() => handleEditTask(task)}
+                    onDelete={() => handleDeleteTask(task)}
                     isPending={pendingTasks.has(task.id)}
                   />
                 ))}
@@ -285,6 +353,29 @@ const TaskBoard = () => {
           </button>
         </div>
       )}
+
+      <TaskFormModal
+        isOpen={showTaskModal}
+        onClose={() => {
+          setShowTaskModal(false);
+          setSelectedTask(null);
+        }}
+        task={selectedTask}
+        projectId={projectId}
+        users={users}
+        onSuccess={handleTaskSaved}
+      />
+
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setSelectedTask(null);
+        }}
+        task={selectedTask}
+        onConfirm={handleConfirmDelete}
+        loading={deleteLoading}
+      />
     </div>
   );
 };
